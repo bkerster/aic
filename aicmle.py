@@ -1,6 +1,5 @@
 # aicmle python style
 import numpy as np
-from collections import defaultdict
 
 def aicmle(timeSeries, distribution):
     mlevals = {}

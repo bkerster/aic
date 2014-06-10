@@ -4,6 +4,7 @@ import numpy as np
 from collections import defaultdict
 
 def aicmle(timeSeries, distribution):
+    """ Calculates maximum likelihood estimates """
     mlevals = {} 
     if distribution == 'pareto':
         mlevals['xmin'] = np.min(timeSeries)
@@ -24,6 +25,7 @@ def aicmle(timeSeries, distribution):
  
  
 def aiclike(timeSeries, params, distribution):
+    """ Calculates natural log likelihood values """
     if distribution == 'pareto':
         nloglval = -(timeSeries.shape[0] * np.log(params['mu']) + timeSeries.shape[0] * params['mu'] * np.log(params['xmin']) - (params['xmin']+1) * np.sum(np.log(timeSeries)))
         return nloglval

@@ -20,10 +20,10 @@ def aicmle(timeSeries, distribution):
     elif distribution == 'exponential':
         mlevals['lambda'] = 1.0 / np.mean(timeSeries)
         
- return mlevals
+    return mlevals
  
  
- def aiclike(timeSeries, params, distribution):
+def aiclike(timeSeries, params, distribution):
     if distribution == 'pareto':
         nloglval = -(timeSeries.shape[0] * np.log(params['mu']) + timeSeries.shape[0] * params['mu'] * np.log(params['xmin']) - (params['xmin']+1) * np.sum(np.log(timeSeries)))
         return nloglval
@@ -48,6 +48,7 @@ def aicpdf(xvals, distribution, params):
         return pvals
     
     elif distribution == 'lognormal':
+        #import pdb; pdb.set_trace()
         pvals = np.exp(-(np.log(xvals) - params['mu'])**2 / (2 * params['sigma']**2)) / (xvals * params['sigma'] * np.sqrt(2*np.pi))
         return pvals
     
@@ -61,7 +62,9 @@ def aicpdf(xvals, distribution, params):
 
         
 def aic(timeSeries, ssc=0):
-    """ Calculates Akaike's Information Criterion for the following distribtions:
+    """ aic(timeSeries, ssc=0) -> data, max_weight, max_weight_params
+    
+        Calculates Akaike's Information Criterion for the following distribtions:
   		Guassian/Normal, Lognormal, Exponential, Pareto.
         Gamma is not included at this time.
         
@@ -89,9 +92,9 @@ def aic(timeSeries, ssc=0):
     # create histogram to determine plot values
     # note that the original uses hist centers, this uses edges. It may matter
     counts, plotvals_edges = np.histogram(timeSeries, 50)
-    plotvals = [np.mean([plotvals_edges[i], plotvals_edges[i+1]]) for i in range(plotvals_edges.shape[0]-1)]
+    plotvals = np.array([np.mean([plotvals_edges[i], plotvals_edges[i+1]]) for i in range(plotvals_edges.shape[0]-1)])
     
-    distributions = ['normal', 'lognormal', 'exponential', 'pareto', 'gamma']
+    distributions = ['normal', 'lognormal', 'exponential', 'pareto'] #no gamma currently
     #pdfs = [dict(name=dist) for dist in distributions]
     pdfs = defaultdict(dict)
     aicvals = defaultdict(dict)

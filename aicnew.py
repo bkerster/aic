@@ -26,7 +26,7 @@ def aicmle(timeSeries, distribution):
         mlevals['xmin'] = np.min(timeSeries)
         mlevals['xmax'] = np.max(timeSeries)
         minmuEstimate = 1.1
-        mlevals['mu'] = fmin(lambda mu: -len(timeSeries) * np.log( (mu - 1) / (np.min(timeSeries)**(1 - mu) - np.max(timeSeries)**(1 - mu))) + mu * np.sum(np.log(timeSeries)), minmuEstimate)[0]
+        mlevals['mu'] = fmin(lambda mu: -len(timeSeries) * np.log( (mu - 1) / (np.min(timeSeries)**(1 - mu) - np.max(timeSeries)**(1 - mu))) + mu * np.sum(np.log(timeSeries)), minmuEstimate, disp=0)[0]
 
     return mlevals
  

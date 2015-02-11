@@ -139,8 +139,6 @@ def aic(timeSeries, ssc=0):
         aicvals[dist]['plots'] = {}
         aicvals[dist]['plots']['xvals'] = plotvals
         aicvals[dist]['plots']['datay'] = counts
-        if dist == 'boundedpl':
-            import pdb; pdb.set_trace()
         aicvals[dist]['plots']['aicy'] = pdfs[dist]['vals'] * scaling
         
     # check for small sample correction

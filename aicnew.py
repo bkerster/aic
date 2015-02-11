@@ -2,6 +2,7 @@
 from __future__ import division
 import numpy as np
 from collections import defaultdict
+from scipy.optimize import fmin
 
 def aicmle(timeSeries, distribution):
     """ Calculates maximum likelihood estimates """
@@ -21,6 +22,12 @@ def aicmle(timeSeries, distribution):
     elif distribution == 'exponential':
         mlevals['lambda'] = 1.0 / np.mean(timeSeries)
         
+    elif distribution == 'boundedpl':
+        mlevals['xmin'] = np.min(timeSeries)
+        mlevals['xmax'] = np.max(timeSeries)
+        minmuEstimate = 1.1
+        mlevals['mu'] = fmin(lambda mu: -len(timeSeries) * np.log( (mu - 1) / (np.min(timeSeries)**(1 - mu) - np.max(timeSeries)**(1 - mu))) + mu * np.sum(np.log(timeSeries)), minmuEstimate)[0]
+
     return mlevals
  
  
@@ -41,6 +48,12 @@ def aiclike(timeSeries, params, distribution):
     elif distribution == 'exponential':
         nloglval = np.sum(params['lambda'] * timeSeries - np.log(params['lambda']))
         return nloglval
+    
+    elif distribution == 'boundedpl':
+        nloglval = -len(timeSeries) * np.log( (params['mu'] - 1) / (np.min(timeSeries)**(1 - params['mu']) - np.max(timeSeries)**(1 - params['mu']))) + params['mu'] * np.sum(np.log(timeSeries))
+        return nloglval
+    
+    
  
  
 def aicpdf(xvals, distribution, params):
@@ -61,6 +74,12 @@ def aicpdf(xvals, distribution, params):
     elif distribution == 'exponential':
         pvals = params['lambda'] * np.exp(-params['lambda'] * xvals)
         return pvals 
+        
+    elif distribution == 'boundedpl':
+        #pvals = (params['mu'] * (params['mu'] ** params['xmax'] - params['xmin'] ** params['xmax'])) / (xvals ** (params['mu'] + 1))
+        #mu * (xmax ^ mu - xmin ^ mu) / x ^ (mu+1)
+        pvals = (params['mu'] * (params['xmax'] ** params['mu'] - params['xmin'] ** params['mu'])) / (xvals ** (params['mu'] + 1))
+        return pvals
 
         
 def aic(timeSeries, ssc=0):
@@ -96,7 +115,7 @@ def aic(timeSeries, ssc=0):
     counts, plotvals_edges = np.histogram(timeSeries, 50)
     plotvals = np.array([np.mean([plotvals_edges[i], plotvals_edges[i+1]]) for i in range(plotvals_edges.shape[0]-1)])
     
-    distributions = ['normal', 'lognormal', 'exponential', 'pareto'] #no gamma currently
+    distributions = ['normal', 'lognormal', 'exponential', 'pareto', 'boundedpl'] #no gamma currently
     #pdfs = [dict(name=dist) for dist in distributions]
     pdfs = defaultdict(dict)
     aicvals = defaultdict(dict)
@@ -120,6 +139,8 @@ def aic(timeSeries, ssc=0):
         aicvals[dist]['plots'] = {}
         aicvals[dist]['plots']['xvals'] = plotvals
         aicvals[dist]['plots']['datay'] = counts
+        if dist == 'boundedpl':
+            import pdb; pdb.set_trace()
         aicvals[dist]['plots']['aicy'] = pdfs[dist]['vals'] * scaling
         
     # check for small sample correction

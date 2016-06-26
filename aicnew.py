@@ -124,7 +124,6 @@ def aic(timeSeries, ssc=0):
     # calculate log likelihood value at maximum
     # find k (number of params)
     # generate probability density function using parameters
-    pdfs = defaultdict(dict)
     kvals = dict()
     for dist in distributions:
         aicvals[dist]['mle'] = aicmle(timeSeries, dist)
